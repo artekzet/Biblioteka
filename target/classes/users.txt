@@ -1,0 +1,3 @@
+User[name='Artu', surname='Zw', email='azwolinski@protonmail.ch', clientId='00000001']
+User[name='a', surname='z', email='w', clientId='00000002']
+User[name='A', surname='Z', email='W', clientId='00000001']
