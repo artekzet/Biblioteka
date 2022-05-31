@@ -1,7 +1,5 @@
 package com.biblioteka;
 
-import java.io.BufferedWriter;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -11,19 +9,19 @@ import java.util.Scanner;
 import java.util.StringJoiner;
 
 public class User {
+    private static final String USER_FILE_PATH = "src/main/resources/users.txt";
+    private static int clientCounter;
     private final String name;
     private final String surname;
     private final String email;
-    private static int clientCounter;
     private final String clientId;
-    private static final String USER_FILE_PATH = "src/main/resources/users.txt";
 
     public User(String name, String surname, String email) {
         clientCounter = (int) countUsers(USER_FILE_PATH);
         this.name = name;
         this.surname = surname;
         this.email = email;
-        clientId =  String.format("%08d" , ++clientCounter);
+        clientId = String.format("%08d", ++clientCounter);
     }
 
     public static void generateUser() {
@@ -35,9 +33,21 @@ public class User {
         System.out.println("Podaj email: ");
         String email = sc.next();
         User user = new User(name, surname, email);
-        user.addUserToFile();
+        FileHelper.addUserToFile(USER_FILE_PATH, user.toString());
     }
 
+    public static long countUsers(String fileName) {
+        Path path = Paths.get(fileName);
+        long lines = 0;
+        try {
+            lines = Files.lines(path).count();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return lines;
+
+    }
 
     @Override
     public boolean equals(Object o) {
@@ -67,30 +77,5 @@ public class User {
                 .add("email='" + email + "'")
                 .add("clientId='" + clientId + "'")
                 .toString();
-    }
-
-    private void addUserToFile() {
-        try {
-            FileWriter fw = new FileWriter(USER_FILE_PATH, true);
-            BufferedWriter bw = new BufferedWriter(fw);
-            bw.write(this.toString());
-            bw.newLine();
-            bw.close();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    public static long countUsers(String fileName) {
-        Path path = Paths.get(fileName);
-        long lines = 0;
-        try {
-            lines = Files.lines(path).count();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        return lines;
-
     }
 }

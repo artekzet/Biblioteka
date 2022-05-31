@@ -4,7 +4,7 @@ import java.util.Scanner;
 
 public class Main {
     public static void main(String[] args) {
-        while (true){
+        while (true) {
             System.out.println("Co chcesz zrobic?");
             System.out.println("1: Dodaj uzytkownika");
             System.out.println("2: Dodaj ksiazke");
@@ -20,6 +20,7 @@ public class Main {
     }
 
     public static void program(int choice) {
+
         switch (choice) {
             case 1:
                 User.generateUser();
