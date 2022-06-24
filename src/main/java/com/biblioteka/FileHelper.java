@@ -4,7 +4,7 @@ import java.io.BufferedWriter;
 import java.io.FileWriter;
 
 public class FileHelper {
-    public static void addUserToFile(String pathToFile, String objectValue) {
+    public static void addObjectToFile(String pathToFile, String objectValue) {
         try {
             FileWriter fw = new FileWriter(pathToFile, true);
             BufferedWriter bw = new BufferedWriter(fw);

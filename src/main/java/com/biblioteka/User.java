@@ -1,30 +1,35 @@
 package com.biblioteka;
 
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Objects;
-import java.util.Scanner;
-import java.util.StringJoiner;
+import java.util.*;
 
 public class User {
     private static final String USER_FILE_PATH = "src/main/resources/users.txt";
-    private static int clientCounter;
+    private static int clientCounter = (int) countUsers(USER_FILE_PATH);
     private final String name;
     private final String surname;
     private final String email;
     private final String clientId;
+    private final List<String> taken;
 
     public User(String name, String surname, String email) {
-        clientCounter = (int) countUsers(USER_FILE_PATH);
         this.name = name;
         this.surname = surname;
         this.email = email;
+        this.taken = new LinkedList<>();
         clientId = String.format("%08d", ++clientCounter);
     }
 
-    public static void generateUser() {
+    public void addBook(String isbn) {
+        taken.add(isbn);
+    }
+
+    public static void generateUser() throws FileNotFoundException {
         Scanner sc = new Scanner(System.in);
         System.out.println("Podaj imie: ");
         String name = sc.next();
@@ -33,10 +38,14 @@ public class User {
         System.out.println("Podaj email: ");
         String email = sc.next();
         User user = new User(name, surname, email);
-        FileHelper.addUserToFile(USER_FILE_PATH, user.toString());
+        if (user.isTaken()) {
+            System.out.println("Operacja nieudana - użytkownik o takim emailu już istnieje");
+        } else {
+            FileHelper.addObjectToFile(USER_FILE_PATH, user.toString());
+        }
     }
 
-    public static long countUsers(String fileName) {
+    private static long countUsers(String fileName) {
         Path path = Paths.get(fileName);
         long lines = 0;
         try {
@@ -76,6 +85,23 @@ public class User {
                 .add("surname='" + surname + "'")
                 .add("email='" + email + "'")
                 .add("clientId='" + clientId + "'")
+                .add("taken=" + taken)
                 .toString();
+    }
+
+    private boolean isTaken() throws FileNotFoundException {
+        try (Scanner scanner = new Scanner(new File(USER_FILE_PATH))) {
+            while (scanner.hasNextLine()) {
+                final String lineFromFile = scanner.nextLine().toLowerCase();
+                if (lineFromFile.contains("email='" + this.email + "'")) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    public String getEmail() {
+        return email;
     }
 }
