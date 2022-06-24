@@ -25,7 +25,7 @@ public class Book {
         this.free = count;
     }
 
-    public static void generateBook() throws FileNotFoundException {
+    public static Book generateBook() throws FileNotFoundException {
         Scanner sc = new Scanner(System.in);
         System.out.println("Podaj tytul: ");
         String title = sc.next();
@@ -44,6 +44,8 @@ public class Book {
         } else {
             FileHelper.addObjectToFile(BOOKS_TXT, book.toString());
         }
+
+        return book;
     }
 
     public static void rentBook(User user, String isbn) throws FileNotFoundException {

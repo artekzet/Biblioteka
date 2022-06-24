@@ -29,7 +29,7 @@ public class User {
         taken.add(isbn);
     }
 
-    public static void generateUser() throws FileNotFoundException {
+    public static User generateUser() throws FileNotFoundException {
         Scanner sc = new Scanner(System.in);
         System.out.println("Podaj imie: ");
         String name = sc.next();
@@ -43,6 +43,7 @@ public class User {
         } else {
             FileHelper.addObjectToFile(USER_FILE_PATH, user.toString());
         }
+        return user;
     }
 
     private static long countUsers(String fileName) {
