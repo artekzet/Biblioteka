@@ -1,15 +1,14 @@
 package com.biblioteka;
 
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 public class MemorySimulator {
     private static MemorySimulator instance = null;
-    public List<User> users;
+    public Set<User> users;
     public List<Book> books;
 
     private MemorySimulator() {
-        users = new LinkedList<>();
+        users = new LinkedHashSet<>();
         books = new LinkedList<>();
     }
 
