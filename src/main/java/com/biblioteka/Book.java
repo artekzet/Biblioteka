@@ -1,19 +1,17 @@
 package com.biblioteka;
 
-import java.io.File;
-import java.io.FileNotFoundException;
+import java.util.List;
 import java.util.Scanner;
 import java.util.StringJoiner;
 
 public class Book {
-    private static final String BOOKS_TXT = "src/main/resources/books.txt";
-    public String title;
-    public String author;
-    public String isbn;
-    public int yearOfRelease;
-    public boolean isAvailable;
-    public int count;
-    public int free;
+    private final String title;
+    private final String author;
+    private final String isbn;
+    private final int yearOfRelease;
+    private final boolean isAvailable;
+    private final int count;
+    private int free;
 
     public Book(String title, String author, String isbn, int yearOfRelease, boolean isAvailable, int count) {
         this.title = title;
@@ -25,7 +23,7 @@ public class Book {
         this.free = count;
     }
 
-    public static Book generateBook() throws FileNotFoundException {
+    public static Book generateBook() {
         Scanner sc = new Scanner(System.in);
         System.out.println("Podaj tytul: ");
         String title = sc.next();
@@ -37,54 +35,39 @@ public class Book {
         int year = sc.nextInt();
         System.out.println("Ile sztuk tej książki chcesz dodac?");
         int count = sc.nextInt();
-        Book book = new Book(title, surname, isbn, year, true, count);
-
-        if (isAdded(book.isbn)) {
-            System.out.println("Operacja nieudana - książka o takim numerze ISBN już istnieje");
-        } else {
-            FileHelper.addObjectToFile(BOOKS_TXT, book.toString());
-        }
-
-        return book;
+        return new Book(title, surname, isbn, year, true, count);
     }
 
-    public static void rentBook(User user, String isbn) throws FileNotFoundException {
-        boolean shouldAdd = false;
-        if (isAdded(isbn)) return;
-        try (Scanner scanner = new Scanner(new File(BOOKS_TXT))) {
-            while (scanner.hasNextLine()) {
-                final String lineFromFile = scanner.nextLine().toLowerCase();
-                if (lineFromFile.contains(user.getEmail()) && lineFromFile.contains(isbn)) {
-                    System.out.println("Ten użytkownik ma już tą książkę");
-                }
-                if (lineFromFile.contains("isbn='" + isbn) && lineFromFile.contains("free=0")) {
-                    System.out.println("Brak książki na stanie!");
-                }
+    public static boolean isAdded(String isbn, List<Book> books) {
+        for (Book b : books) {
+            if (b.isbn.contains(isbn)) {
+                return true;
+            }
+        }
 
-            }
-        }
-        if (shouldAdd){
-            user.addBook(isbn);
-            try (Scanner scanner = new Scanner(new File(BOOKS_TXT))) {
-                while (scanner.hasNextLine()) {
-                    final String lineFromFile = scanner.nextLine().toLowerCase();
-                    if (lineFromFile.contains(user.getEmail())) {
-                    }
-                }
-            }
-        }
-    }
-
-    private static boolean isAdded(String isbn) throws FileNotFoundException {
-        try (Scanner scanner = new Scanner(new File(BOOKS_TXT))) {
-            while (scanner.hasNextLine()) {
-                final String lineFromFile = scanner.nextLine().toLowerCase();
-                if (lineFromFile.contains(isbn)) {
-                    return true;
-                }
-            }
-        }
         return false;
+    }
+
+    public static Book getBookByIsbn(String isbn, List<Book> books) throws BookNotFount {
+        for (Book b : books) {
+            if (b.getIsbn().contains(isbn)) {
+                return b;
+            }
+        }
+        throw new BookNotFount("There is no book with isbn: " + isbn);
+    }
+
+    public void rentBook(User user, String isbn, List<Book> books) {
+        if (!isAdded(isbn, books)) {
+            System.out.println("Książka nie dodana!");
+        } else if (this.free <= 0) {
+            System.out.println("Nie ma ksiazki na stanie!");
+        } else if (user.hasBook(isbn)) {
+            System.out.println("Juz masz ta ksiazke!");
+        } else {
+            user.addBook(isbn);
+            this.free -= 1;
+        }
     }
 
     @Override
@@ -98,5 +81,33 @@ public class Book {
                 .add("count=" + count)
                 .add("free=" + free)
                 .toString();
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public String getAuthor() {
+        return author;
+    }
+
+    public String getIsbn() {
+        return isbn;
+    }
+
+    public int getYearOfRelease() {
+        return yearOfRelease;
+    }
+
+    public boolean isAvailable() {
+        return isAvailable;
+    }
+
+    public int getCount() {
+        return count;
+    }
+
+    public int getFree() {
+        return free;
     }
 }

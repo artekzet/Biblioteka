@@ -1,6 +1,9 @@
 package com.biblioteka;
 
-import java.util.*;
+import java.util.LinkedHashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Set;
 
 public class MemorySimulator {
     private static MemorySimulator instance = null;
@@ -17,5 +20,22 @@ public class MemorySimulator {
             instance = new MemorySimulator();
         }
         return instance;
+    }
+
+    public boolean userExists(String email) {
+        for (User u : users) {
+            if (u.getEmail().toLowerCase().contains(email.toLowerCase())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public void getAllUsers() {
+        users.forEach(System.out::println);
+    }
+
+    public void getAllBooks() {
+        books.forEach(System.out::println);
     }
 }

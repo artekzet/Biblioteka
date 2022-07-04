@@ -1,16 +1,9 @@
 package com.biblioteka;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.*;
 
 public class User {
-    private static final String USER_FILE_PATH = "src/main/resources/users.txt";
-    private static int clientCounter = (int) countUsers(USER_FILE_PATH);
+    private static int clientCounter = 0;
     private final String name;
     private final String surname;
     private final String email;
@@ -25,58 +18,43 @@ public class User {
         clientId = String.format("%08d", ++clientCounter);
     }
 
-    public void addBook(String isbn) {
-        taken.add(isbn);
-    }
-
-    public static User generateUser() throws FileNotFoundException {
+    public static User generateUser() {
         Scanner sc = new Scanner(System.in);
         System.out.println("Podaj imie: ");
         String name = sc.next();
         System.out.println("Podaj nazwisko: ");
         String surname = sc.next();
         System.out.println("Podaj email: ");
-        String email = sc.next();
-        User user = new User(name, surname, email);
-        if (user.isTaken()) {
-            System.out.println("Operacja nieudana - użytkownik o takim emailu już istnieje");
-        } else {
-            FileHelper.addObjectToFile(USER_FILE_PATH, user.toString());
-        }
-        return user;
+        String email = sc.next().toLowerCase();
+        return new User(name, surname, email);
     }
 
-    private static long countUsers(String fileName) {
-        Path path = Paths.get(fileName);
-        long lines = 0;
-        try {
-            lines = Files.lines(path).count();
-        } catch (IOException e) {
-            e.printStackTrace();
+    public static User getUserByEmail(String email, Set<User> users) throws UserNotFount {
+        for (User u : users) {
+            if (u.getEmail().toLowerCase().contains(email.toLowerCase())) {
+                return u;
+            }
         }
+        throw new UserNotFount("There is no user with email: " + email);
+    }
 
-        return lines;
-
+    public void addBook(String isbn) {
+        taken.add(isbn);
     }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
+
         User user = (User) o;
-        if (!Objects.equals(name, user.name)) return false;
-        if (!Objects.equals(surname, user.surname)) return false;
-        if (!Objects.equals(email, user.email)) return false;
-        return Objects.equals(clientId, user.clientId);
+
+        return email.equals(user.email);
     }
 
     @Override
     public int hashCode() {
-        int result = name != null ? name.hashCode() : 0;
-        result = 31 * result + (surname != null ? surname.hashCode() : 0);
-        result = 31 * result + (email != null ? email.hashCode() : 0);
-        result = 31 * result + (clientId != null ? clientId.hashCode() : 0);
-        return result;
+        return email.hashCode();
     }
 
     @Override
@@ -90,13 +68,10 @@ public class User {
                 .toString();
     }
 
-    private boolean isTaken() throws FileNotFoundException {
-        try (Scanner scanner = new Scanner(new File(USER_FILE_PATH))) {
-            while (scanner.hasNextLine()) {
-                final String lineFromFile = scanner.nextLine().toLowerCase();
-                if (lineFromFile.contains("email='" + this.email + "'")) {
-                    return true;
-                }
+    public boolean hasBook(String isbn) {
+        for (String t : taken) {
+            if (t.contains(isbn)) {
+                return true;
             }
         }
         return false;
@@ -104,5 +79,9 @@ public class User {
 
     public String getEmail() {
         return email;
+    }
+
+    public List<String> getTaken() {
+        return taken;
     }
 }
